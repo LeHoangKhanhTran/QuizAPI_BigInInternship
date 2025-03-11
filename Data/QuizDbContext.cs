@@ -6,7 +6,8 @@ public class QuizContext: DbContext
     public DbSet<Topic> Topic { get; set; }
     public DbSet<Question> Question { get; set; }
     public DbSet<Choice> Choice { get; set; }
-
+    public DbSet<Record> Record { get; set; }
+    public DbSet<Answer> Answer { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         // TODO: Add connection string to dabase
