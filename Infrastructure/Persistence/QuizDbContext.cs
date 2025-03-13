@@ -10,7 +10,6 @@ public class QuizDbContext: DbContext
     public DbSet<Answer> Answers { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        // TODO: Add connection string to dabase
         optionsBuilder.UseMySql("server=localhost;database=quiz_db;user=root;password=feiusewy@41!.3;", 
         ServerVersion.AutoDetect("server=localhost;database=quiz_db;user=root;password=feiusewy@41!.3;"));
     }
@@ -48,6 +47,9 @@ public class QuizDbContext: DbContext
             entity.HasKey(e => e.ID);
             entity.Property(e => e.UserID).IsRequired();
             entity.Property(e => e.Score).IsRequired();
+            entity.Property(e => e.CreatedDate)
+                  .HasConversion(d => d.UtcDateTime, d => new DateTimeOffset(d, TimeSpan.Zero) )
+                  .IsRequired();
             entity.HasOne(e => e.Topic).WithMany(t => t.Records);
             entity.HasMany(e => e.Answers).WithOne(a => a.Record);
         });

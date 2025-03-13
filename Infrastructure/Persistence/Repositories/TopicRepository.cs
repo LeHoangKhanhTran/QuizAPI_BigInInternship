@@ -18,6 +18,7 @@ public class TopicRepository : ITopicRepository
     public async Task DeleteTopic(Guid id)
     {
         await _quizDbContext.Topics.Where(t => t.ID == id).ExecuteDeleteAsync();
+        await _quizDbContext.SaveChangesAsync();
     }
 
     public async Task<IEnumerable<Topic>> GetAllTopics()
@@ -27,20 +28,12 @@ public class TopicRepository : ITopicRepository
 
     public async Task<Topic> GetTopicById(Guid id)
     {
-        return await _quizDbContext.Topics.Where(t => t.ID == id).FirstOrDefaultAsync();
+        return await _quizDbContext.Topics.Where(t => t.ID == id).SingleOrDefaultAsync();
     }
 
     public async Task UpdateTopic(Topic topic)
     {
-        var existingTopic = await _quizDbContext.Topics.FindAsync(topic.ID);
-        if (existingTopic is not null)
-        {
-            existingTopic.Title = topic.Title;
-            existingTopic.Description = topic.Description;
-            existingTopic.Questions = topic.Questions;
-            existingTopic.Records = topic.Records;
-            _quizDbContext.Topics.Update(existingTopic);
-            await _quizDbContext.SaveChangesAsync();
-        }
+        _quizDbContext.Topics.Update(topic);
+        await _quizDbContext.SaveChangesAsync();
     }
 }

@@ -112,3 +112,8 @@ D:\QuizAPI\bin\Debug\net8.0\zh-Hans\Microsoft.CodeAnalysis.Workspaces.resources.
 D:\QuizAPI\bin\Debug\net8.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.resources.dll
 D:\QuizAPI\bin\Debug\net8.0\AutoMapper.dll
 D:\QuizAPI\bin\Debug\net8.0\AutoMapper.Extensions.Microsoft.DependencyInjection.dll
+D:\QuizAPI\bin\Debug\net8.0\FluentValidation.dll
+D:\QuizAPI\bin\Debug\net8.0\FluentValidation.DependencyInjectionExtensions.dll
+D:\QuizAPI\bin\Debug\net8.0\MediatR.dll
+D:\QuizAPI\bin\Debug\net8.0\MediatR.Contracts.dll
+D:\QuizAPI\bin\Debug\net8.0\MediatR.Extensions.Microsoft.DependencyInjection.dll

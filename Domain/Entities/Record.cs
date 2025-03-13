@@ -7,4 +7,5 @@ public class Record
     public required IEnumerable<Answer> Answers { get; set; }
     public Guid UserID { get; set; }
     public int Score { get; set; }
+    public DateTimeOffset CreatedDate { get; init; } = DateTimeOffset.Now;
 }

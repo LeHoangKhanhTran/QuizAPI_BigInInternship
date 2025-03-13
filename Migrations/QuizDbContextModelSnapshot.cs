@@ -102,6 +102,9 @@ namespace QuizAPI.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<int>("Score")
                         .HasColumnType("int");
 

@@ -1,4 +1,5 @@
 using AutoMapper;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using QuizAPI.DTOs;
 using QuizAPI.Entities;
@@ -9,54 +10,48 @@ namespace QuizAPI.Controllers;
 [Route("api/topics")]
 public class TopicController: ControllerBase
 {
-    private readonly ITopicRepository _topicRepository;
-    private readonly IMapper _mapper;
-    public TopicController(ITopicRepository topicRepository, IMapper mapper)
+    private readonly ISender _sender;
+    public TopicController(ISender sender)
     {
-        _topicRepository = topicRepository;
-        _mapper = mapper;
+        _sender = sender;
     }
 
     [HttpGet]
-    public async Task<IEnumerable<TopicDto>> GetAllTopics()
+    public async Task<ActionResult<IEnumerable<TopicInfoDto>>> GetAllTopics()
     {
-        var topics = await _topicRepository.GetAllTopics();
-        return topics.Select(_mapper.Map<TopicDto>);
+        var topicsInfo = await _sender.Send(new GetAllTopicsQuery());
+        return Ok(topicsInfo); 
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<TopicDto>> GetTopicById(Guid id)
     {
-        var topic = await _topicRepository.GetTopicById(id);
-        return _mapper.Map<TopicDto>(topic);
+        var topicInfo = await _sender.Send(new GetTopicByIdQuery(id));
+        return Ok(topicInfo);
     }
 
     [HttpPost]
     public async Task<ActionResult<TopicDto>> CreateTopic(CreateTopicDto topicDto) 
     {
-        var topic = new Topic()
-        {
-            ID = Guid.NewGuid(),
-            Title = topicDto.Title,
-            Description = topicDto.Description
-        };
-        await _topicRepository.CreateTopic(topic);
-        return CreatedAtAction(nameof(GetTopicById), new {id = topic.ID}, _mapper.Map<TopicDto>(topic));
+        var topic = _sender.Send(new CreateTopicCommand(topicDto));
+        return Ok();
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult> UpdateTopic(Guid id, UpdateTopicDto topicDto)
+    public async Task<IActionResult> UpdateTopic(Guid id, UpdateTopicDto topicDto)
     {
-        var topic = _mapper.Map<Topic>(topicDto);
-        topic.ID = id;
-        await _topicRepository.UpdateTopic(topic);
         return NoContent();
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult> DeleteTopic(Guid id)
+    public async Task<IActionResult> DeleteTopic(Guid id)
     {
-        await _topicRepository.DeleteTopic(id);
+        return NoContent();
+    }
+
+    [HttpPost("{topicId}/questions/{questionId}")]
+    public async Task<ActionResult> AddQuestionToTopic(Guid topicId, Guid questionId)
+    {
         return NoContent();
     }
 }

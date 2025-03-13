@@ -1,30 +1,39 @@
+using Microsoft.EntityFrameworkCore;
 using QuizAPI.Entities;
 using QuizAPI.Interfaces;
 
 public class QuestionRepository : IQuestionRepository
 {
-    public Task CreateQuestion(Question question)
+    private readonly QuizDbContext _quizDbContext;
+    public QuestionRepository(QuizDbContext quizDbContext)
     {
-        throw new NotImplementedException();
+        _quizDbContext = quizDbContext;
+    }
+    public async Task CreateQuestion(Question question)
+    {
+        await _quizDbContext.Questions.AddAsync(question);
+        await _quizDbContext.SaveChangesAsync();
     }
 
-    public Task DeleteTopic(Guid id)
+    public async Task DeleteQuestion(Guid id)
     {
-        throw new NotImplementedException();
+        await _quizDbContext.Questions.Where(q => q.ID == id).ExecuteDeleteAsync();
+        await _quizDbContext.SaveChangesAsync();
     }
 
-    public Task<Question> GetQuestionById(Guid id)
+    public async Task<Question> GetQuestionById(Guid id)
     {
-        throw new NotImplementedException();
+        return await _quizDbContext.Questions.Where(q => q.ID == id).SingleOrDefaultAsync();
     }
 
-    public Task<IEnumerable<Question>> GetQuestionsByTopic()
+    public async Task<IEnumerable<Question>> GetQuestionsByTopicId(Guid topicId)
     {
-        throw new NotImplementedException();
+        return await _quizDbContext.Questions.Where(q => q.Topics.Any(t => t.ID == topicId)).ToListAsync();
     }
 
-    public Task UpdateQuestion(Question question)
+    public async Task UpdateQuestion(Question question)
     {
-        throw new NotImplementedException();
+        _quizDbContext.Questions.Update(question);
+        await _quizDbContext.SaveChangesAsync();
     }
 }
