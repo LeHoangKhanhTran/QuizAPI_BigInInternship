@@ -23,12 +23,14 @@ public class QuestionRepository : IQuestionRepository
 
     public async Task<Question> GetQuestionById(Guid id)
     {
-        return await _quizDbContext.Questions.Where(q => q.ID == id).SingleOrDefaultAsync();
+        var question = await _quizDbContext.Questions.Where(q => q.ID == id).SingleOrDefaultAsync();
+        return question;
     }
 
-    public async Task<IEnumerable<Question>> GetQuestionsByTopicId(Guid topicId)
+    public async Task<IEnumerable<Question>> GetQuestions(Guid? topicId)
     {
-        return await _quizDbContext.Questions.Where(q => q.Topics.Any(t => t.ID == topicId)).ToListAsync();
+        if (topicId is null) return await _quizDbContext.Questions.Where(q => q.Topics.Any(t => t.ID == topicId)).ToListAsync();
+        return await _quizDbContext.Questions.ToListAsync();
     }
 
     public async Task UpdateQuestion(Question question)

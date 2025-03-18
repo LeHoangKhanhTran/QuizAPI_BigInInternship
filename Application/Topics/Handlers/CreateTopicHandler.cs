@@ -4,7 +4,7 @@ using QuizAPI.DTOs;
 using QuizAPI.Entities;
 using QuizAPI.Interfaces;
 
-public class CreateTopicHandler : IRequestHandler<CreateTopicCommand, Guid>
+public class CreateTopicHandler : IRequestHandler<CreateTopicCommand, TopicDto>
 {
     private readonly ITopicRepository _topicRepository;
     private readonly IMapper _mapper;
@@ -13,9 +13,9 @@ public class CreateTopicHandler : IRequestHandler<CreateTopicCommand, Guid>
         _topicRepository = topicRepository;
         _mapper = mapper;
     }
-    public async Task<Guid> Handle(CreateTopicCommand request, CancellationToken cancellationToken)
+    public async Task<TopicDto> Handle(CreateTopicCommand request, CancellationToken cancellationToken)
     {
-        var topicDto = request.topicDto;
+        var topicDto = request.TopicDto;
         var topic = new Topic 
         {
             ID = Guid.NewGuid(),
@@ -23,6 +23,6 @@ public class CreateTopicHandler : IRequestHandler<CreateTopicCommand, Guid>
             Description = topicDto.Description
         };  
         await _topicRepository.CreateTopic(topic);
-        return topic.ID;
+        return _mapper.Map<TopicDto>(topic);
     }
 }

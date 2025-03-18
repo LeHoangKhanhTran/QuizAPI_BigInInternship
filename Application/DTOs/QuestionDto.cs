@@ -1,4 +1,4 @@
 namespace QuizAPI.DTOs;
-public record QuestionDto(Guid ID, string Content, IEnumerable<TopicDto> Topics, Guid CorrectChoiceID, IEnumerable<ChoiceDto> Choices);
-public record CreateQuestionDto(string Content, IEnumerable<TopicDto> Topics, Guid CorrectChoiceID, IEnumerable<ChoiceDto> Choices);
-public record UpdateQuestionDto(string Content, IEnumerable<TopicDto> Topics, Guid CorrectChoiceID, IEnumerable<ChoiceDto> Choices);
+public record QuestionDto(Guid ID, string Content, List<TopicDto> Topics, Guid CorrectChoiceID, List<ChoiceDto> Choices);
+public record CreateQuestionDto(string Content, CreateChoiceDto CorrectChoice, List<CreateChoiceDto> OtherChoices);
+public record UpdateQuestionDto(string? Content, Guid? CorrectChoiceID, List<ChoiceDto>? Choices);

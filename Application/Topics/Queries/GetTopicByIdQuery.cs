@@ -1,11 +1,11 @@
 using MediatR;
 using QuizAPI.DTOs;
 
-public class GetTopicByIdQuery: IRequest<TopicInfoDto> 
+public record GetTopicByIdQuery(Guid Id): IRequest<TopicDto> 
 { 
-    public Guid Id { get; }
-    public GetTopicByIdQuery(Guid id)
-    {
-        Id = id;
-    }
+    // public Guid Id { get; }
+    // public GetTopicByIdQuery(Guid id)
+    // {
+    //     Id = id;
+    // }
 }

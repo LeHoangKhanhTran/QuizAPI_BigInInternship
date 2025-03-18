@@ -1,5 +1,16 @@
 using QuizAPI.Entities;
 
 namespace QuizAPI.DTOs;
-public record ChoiceDto(Guid Id, string Content, QuestionDto QuestionDto);
-public record CreateChoiceDto(string Content, QuestionDto QuestionDto);
+public record ChoiceDto
+{
+    public Guid Id { get; init; }
+    public string Content { get; init; }
+    public ChoiceDto() { }
+    public ChoiceDto(Guid id, string content)
+    {
+        Id = id;
+        Content = content;
+    }
+}
+
+public record CreateChoiceDto(string Content);

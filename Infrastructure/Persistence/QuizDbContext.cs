@@ -33,6 +33,7 @@ public class QuizDbContext: DbContext
             entity.Property(e => e.CorrectChoiceID).IsRequired();
             entity.HasMany(e => e.Choices).WithOne(c => c.Question);
             entity.HasMany(e => e.Topics).WithMany(t => t.Questions);
+            entity.Navigation(e => e.Choices).AutoInclude();
         });
 
         modelBuilder.Entity<Choice>(entity => 
@@ -52,6 +53,7 @@ public class QuizDbContext: DbContext
                   .IsRequired();
             entity.HasOne(e => e.Topic).WithMany(t => t.Records);
             entity.HasMany(e => e.Answers).WithOne(a => a.Record);
+            entity.Navigation(e => e.Answers).AutoInclude();
         });
 
         modelBuilder.Entity<Answer>(entity => 

@@ -3,7 +3,7 @@ using MediatR;
 using QuizAPI.DTOs;
 using QuizAPI.Interfaces;
 
-public class GetTopicByIdHandler : IRequestHandler<GetTopicByIdQuery, TopicInfoDto>
+public class GetTopicByIdHandler : IRequestHandler<GetTopicByIdQuery, TopicDto>
 {
     private readonly ITopicRepository _topicRepository;
     private readonly IMapper _mapper;
@@ -12,9 +12,9 @@ public class GetTopicByIdHandler : IRequestHandler<GetTopicByIdQuery, TopicInfoD
         _topicRepository = topicRepository;
         _mapper = mapper;
     }
-    public async Task<TopicInfoDto> Handle(GetTopicByIdQuery request, CancellationToken cancellationToken)
+    public async Task<TopicDto> Handle(GetTopicByIdQuery request, CancellationToken cancellationToken)
     {
         var topic = await _topicRepository.GetTopicById(request.Id);
-        return _mapper.Map<TopicInfoDto>(topic);
+        return _mapper.Map<TopicDto>(topic);
     }
 }

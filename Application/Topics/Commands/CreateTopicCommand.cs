@@ -1,4 +1,4 @@
 using MediatR;
 using QuizAPI.DTOs;
 
-public record CreateTopicCommand(CreateTopicDto topicDto): IRequest<Guid>;
+public record CreateTopicCommand(CreateTopicDto TopicDto): IRequest<TopicDto>;
