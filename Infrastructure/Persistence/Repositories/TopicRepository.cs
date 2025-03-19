@@ -28,7 +28,7 @@ public class TopicRepository : ITopicRepository
 
     public async Task<Topic> GetTopicById(Guid id)
     {
-        return await _quizDbContext.Topics.Where(t => t.ID == id).Include(t => t.Questions).SingleOrDefaultAsync();
+        return await _quizDbContext.Topics.Where(t => t.ID == id).Include(t => t.Questions).ThenInclude(q => q.Choices).SingleOrDefaultAsync();
     }
 
     public async Task UpdateTopic(Topic topic)

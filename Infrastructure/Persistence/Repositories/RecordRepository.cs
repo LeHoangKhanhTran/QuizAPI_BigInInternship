@@ -17,11 +17,12 @@ public class RecordRepository : IRecordRepository
 
     public async Task<Record> GetRecordById(Guid id)
     {
-        return await _quizDbContext.Records.Where(r => r.ID == id).SingleOrDefaultAsync();
+        return await _quizDbContext.Records.Where(r => r.ID == id).Include(r => r.Topic).Include(r => r.Answers).SingleOrDefaultAsync();
     }
 
-    public async Task<IEnumerable<Record>> GetRecordsByUserId(Guid userId)
+    public async Task<IEnumerable<Record>> GetRecords(Guid? userId)
     {
-        return await _quizDbContext.Records.Where(r => r.UserID == userId).ToListAsync();
+        if (userId is null || userId == Guid.Empty) return await _quizDbContext.Records.Include(r => r.Topic).Include(r => r.Answers).ToListAsync();
+        return await _quizDbContext.Records.Where(r => r.UserID == userId).Include(r => r.Topic).Include(r => r.Answers).ToListAsync();
     }
 }

@@ -1,5 +1,9 @@
 using System.Reflection;
+using AutoMapper;
 using FluentValidation;
+using MediatR;
+using QuizAPI.DTOs;
+using QuizAPI.Entities;
 using QuizAPI.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,8 +21,9 @@ builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
 builder.Services.AddScoped<IRecordRepository, RecordRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
 builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
 var app = builder.Build();
 
@@ -30,8 +35,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseRouting();
-app.UseHttpsRedirection();
-
+app.UseMiddleware<ExceptionHandlingMiddleware>(); 
 app.MapControllers();
 
 app.Run();

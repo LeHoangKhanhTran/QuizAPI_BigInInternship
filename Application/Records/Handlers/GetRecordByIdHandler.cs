@@ -15,6 +15,9 @@ public class GetRecordByIdHandler : IRequestHandler<GetRecordByIdQuery, RecordDt
     public async Task<RecordDto> Handle(GetRecordByIdQuery request, CancellationToken cancellationToken)
     {
         var record = await _recordRepository.GetRecordById(request.Id);
-        return _mapper.Map<RecordDto>(record);
+        Console.WriteLine(record.Topic is null);  
+        var topicDto = new TopicInfoDto(record.Topic.ID, record.Topic.Title, record.Topic.Description);
+        var recordDto = new RecordDto(record.ID, topicDto, record.Answers.Select(a => new AnswerDto(a.ID, a.QuestionId, a.ChoiceId)).ToList(), record.UserID, record.Score, record.CreatedDate);
+        return recordDto;
     }
 }

@@ -6,12 +6,9 @@ using QuizAPI.Entities;
 public class CreateRecordHandler : IRequestHandler<CreateRecordCommand, RecordDto>
 {
     private readonly UnitOfWork _unitOfWork;
-    private readonly IMapper _mapper;
-
-    public CreateRecordHandler(IUnitOfWork unitOfWork, IMapper mapper)
+    public CreateRecordHandler(IUnitOfWork unitOfWork)
     {
         _unitOfWork = (UnitOfWork)unitOfWork;
-        _mapper = mapper;
     }
     public async Task<RecordDto> Handle(CreateRecordCommand request, CancellationToken cancellationToken)
     {
@@ -21,7 +18,8 @@ public class CreateRecordHandler : IRequestHandler<CreateRecordCommand, RecordDt
         int score = 0;
         foreach (CreateAnswerDto answer in recordDto.Answers)
         {
-            if (answer.ChoiceId == answer.Question.CorrectChoiceID)
+            var question = await _unitOfWork.Questions.GetQuestionById(answer.QuestionId);
+            if (answer.ChoiceId == question.CorrectChoiceID)
             {
                 score++;
             }
@@ -33,13 +31,14 @@ public class CreateRecordHandler : IRequestHandler<CreateRecordCommand, RecordDt
             Answers = recordDto.Answers.Select(a => new Answer() 
             {
                 ID = Guid.NewGuid(),
-                QuestionId = a.Question.ID,
+                QuestionId = a.QuestionId,
                 ChoiceId = a.ChoiceId,
             }).ToList(), 
             Score = score,
             UserID = recordDto.UserID
         };
         await _unitOfWork.Records.CreateRecord(record);
-        return _mapper.Map<RecordDto>(record);
+        TopicInfoDto topicInfoDto = new(existingTopic.ID, existingTopic.Title, existingTopic.Description);
+        return new RecordDto(record.ID, topicInfoDto, record.Answers.Select(a => new AnswerDto(a.ID, a.QuestionId, a.ChoiceId)).ToList(),record.UserID, score, record.CreatedDate);
     }
 }

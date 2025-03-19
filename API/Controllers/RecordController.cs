@@ -24,7 +24,7 @@ public class RecordController: ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<RecordDto>>> GetRecordsByUserId([FromQuery] Guid userId)
     {
-        var records = await _sender.Send(new GetRecordsByUserIdQuery(userId));
+        var records = await _sender.Send(new GetRecordsQuery(userId));
         return Ok(records);
     }
 
