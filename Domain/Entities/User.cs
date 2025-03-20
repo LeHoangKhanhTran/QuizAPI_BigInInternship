@@ -1,8 +1,8 @@
+using Microsoft.AspNetCore.Identity;
+
 namespace QuizAPI.Entities;
 
-public class User 
+public class User: IdentityUser
 {
-    public Guid Id { get; set; }
-    public required string Username { get; set; }
-    public required string Password { get; set; }
+
 }

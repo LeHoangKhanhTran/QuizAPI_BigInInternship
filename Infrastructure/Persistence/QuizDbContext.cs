@@ -1,17 +1,24 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using QuizAPI.Entities;
 
-public class QuizDbContext: DbContext 
+public class QuizDbContext: DbContext
 {
     public DbSet<Topic> Topics { get; set; }
     public DbSet<Question> Questions { get; set; }
     public DbSet<Choice> Choices { get; set; }
     public DbSet<Record> Records { get; set; }
     public DbSet<Answer> Answers { get; set; }
+    private readonly IConfiguration _config;
+    public QuizDbContext(IConfiguration config)
+    {
+        _config = config;
+    }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseMySql("server=localhost;database=quiz_db;user=root;password=feiusewy@41!.3;", 
-        ServerVersion.AutoDetect("server=localhost;database=quiz_db;user=root;password=feiusewy@41!.3;"));
+        optionsBuilder.UseMySql(_config["Database:ConnectionString"], 
+        ServerVersion.AutoDetect(_config["Database:ConnectionString"]));
     }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

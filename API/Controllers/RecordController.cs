@@ -1,5 +1,6 @@
 using System.Drawing;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QuizAPI.DTOs;
 namespace QuizAPI.Controllers;
@@ -20,9 +21,10 @@ public class RecordController: ControllerBase
         var record = await _sender.Send(new GetRecordByIdQuery(id));
         return Ok(record);
     }
-
+    
+    [Authorize(Roles = "Admin")]
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<RecordDto>>> GetRecordsByUserId([FromQuery] Guid userId)
+    public async Task<ActionResult<IEnumerable<RecordDto>>> GetRecords([FromQuery] Guid userId)
     {
         var records = await _sender.Send(new GetRecordsQuery(userId));
         return Ok(records);

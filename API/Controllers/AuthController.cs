@@ -1,12 +1,44 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using QuizAPI.DTOs;
+using QuizAPI.Entities;
 namespace QuizAPI.Controllers;
 
 [ApiController]
 [Route("api/auth")]
 public class AuthController: ControllerBase
 {
-    public AuthController()
+    private readonly JwtTokenGenerator _tokenGenerator;
+    private readonly UserManager<User> _userManager;
+    public AuthController(UserManager<User> userManager, JwtTokenGenerator tokenGenerator)
     {
-        
+        _userManager = userManager;
+        _tokenGenerator = tokenGenerator;
+    }
+    
+    [HttpPost("register")]
+    public async Task<IActionResult> Register([FromBody] RegisterDto model)
+    {
+        var user = new User { UserName = model.Email, Email = model.Email };
+        var result = await _userManager.CreateAsync(user, model.Password);
+
+        if (result.Succeeded)
+        {
+            await _userManager.AddToRoleAsync(user, "User");
+            return Ok(new { message = "User registered successfully!" });
+        }
+        return BadRequest(result.Errors);
+    }
+
+    [HttpPost("login")]
+    public async Task<IActionResult> Login([FromBody] LoginDto model)
+    {
+        var user = await _userManager.FindByEmailAsync(model.Email);
+        if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
+        {
+            var token = await _tokenGenerator.GenerateToken(user);
+            return Ok(new { token });
+        }
+        return Unauthorized();
     }
 }

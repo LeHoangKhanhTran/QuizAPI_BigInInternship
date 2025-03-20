@@ -117,3 +117,17 @@ D:\QuizAPI\obj\Debug\net8.0\refint\QuizAPI.dll
 D:\QuizAPI\obj\Debug\net8.0\QuizAPI.pdb
 D:\QuizAPI\obj\Debug\net8.0\QuizAPI.genruntimeconfig.cache
 D:\QuizAPI\obj\Debug\net8.0\ref\QuizAPI.dll
+D:\QuizAPI\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+D:\QuizAPI\bin\Debug\net8.0\Microsoft.AspNetCore.Cryptography.Internal.dll
+D:\QuizAPI\bin\Debug\net8.0\Microsoft.AspNetCore.Cryptography.KeyDerivation.dll
+D:\QuizAPI\bin\Debug\net8.0\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
+D:\QuizAPI\bin\Debug\net8.0\Microsoft.Bcl.Memory.dll
+D:\QuizAPI\bin\Debug\net8.0\Microsoft.Extensions.Identity.Core.dll
+D:\QuizAPI\bin\Debug\net8.0\Microsoft.Extensions.Identity.Stores.dll
+D:\QuizAPI\bin\Debug\net8.0\Microsoft.IdentityModel.Abstractions.dll
+D:\QuizAPI\bin\Debug\net8.0\Microsoft.IdentityModel.JsonWebTokens.dll
+D:\QuizAPI\bin\Debug\net8.0\Microsoft.IdentityModel.Logging.dll
+D:\QuizAPI\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.dll
+D:\QuizAPI\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+D:\QuizAPI\bin\Debug\net8.0\Microsoft.IdentityModel.Tokens.dll
+D:\QuizAPI\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll
