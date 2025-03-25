@@ -14,24 +14,20 @@ public class UpdateQuestionHandler : IRequestHandler<UpdateQuestionCommand, Unit
     }
     public async Task<Unit> Handle(UpdateQuestionCommand request, CancellationToken cancellationToken)
     {
-        try 
+        var existingQuestion = await _questionRepository.GetQuestionById(request.Id);
+        if (existingQuestion is null) throw new NotFoundException(nameof(Question), request.Id);
+        var questionDto = request.QuestionDto;
+        var correctChoice = questionDto.CorrectChoice is null ? null : new Choice()
         {
-            var existingQuestion = await _questionRepository.GetQuestionById(request.Id);
-            if (existingQuestion is null) throw new NotFoundException(nameof(Question), request.Id);
-            var questionDto = request.QuestionDto;
-            Question question = new()
-            {
-                Topics = existingQuestion.Topics,
-                Content = questionDto.Content ?? existingQuestion.Content,
-                CorrectChoiceID = questionDto.CorrectChoiceID ?? existingQuestion.CorrectChoiceID,
-                Choices = questionDto.Choices.Select(_mapper.Map<Choice>).ToList() ?? existingQuestion.Choices
-            };
-            await _questionRepository.UpdateQuestion(question);
-        }
-        catch(Exception)
-        {
-
-        }
+            ID = Guid.NewGuid(),
+            Content = questionDto.CorrectChoice.Content
+        };
+        var choices = questionDto.OtherChoices?.Select(_mapper.Map<Choice>).ToList() ?? existingQuestion.Choices;
+        if (correctChoice is not null) choices.Add(correctChoice);
+        existingQuestion.Content = questionDto.Content ?? existingQuestion.Content;
+        existingQuestion.CorrectChoiceID = correctChoice?.ID ?? existingQuestion.CorrectChoiceID;
+        existingQuestion.Choices = choices;
+        await _questionRepository.UpdateQuestion(existingQuestion);
         return Unit.Value;
     }
 }

@@ -1,6 +1,8 @@
 using AutoMapper;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using QuizAPI.DTOs;
 using QuizAPI.Entities;
 namespace QuizAPI.Controllers;
@@ -10,17 +12,22 @@ namespace QuizAPI.Controllers;
 public class QuesitionController: ControllerBase 
 {
     private readonly ISender _sender;
-    private readonly IMapper _mapper;
-    public QuesitionController(ISender sender, IMapper mapper)
+    private readonly IMemoryCache _cache;
+    public QuesitionController(ISender sender, IMemoryCache cache)
     {
         _sender = sender;
-        _mapper = mapper;
+        _cache = cache;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<QuestionDto>>> GetQuestions([FromQuery] Guid topicId)
     {
-        var questions = await _sender.Send(new GetQuestionsQuery(topicId));
+        var questions = await _cache.GetOrCreateAsync("questions", async entry =>
+        {
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
+            entry.SlidingExpiration = TimeSpan.FromMinutes(2);
+            return await _sender.Send(new GetQuestionsQuery(topicId));
+        });
         return Ok(questions);
     }
 
@@ -31,6 +38,7 @@ public class QuesitionController: ControllerBase
         return Ok(question);
     }
 
+    [Authorize(Policy = "AdminOnlyPolicy")]
     [HttpPost]
     public async Task<ActionResult<QuestionDto>> CreateQuestion(CreateQuestionDto questionDto)
     {
@@ -38,6 +46,7 @@ public class QuesitionController: ControllerBase
         return CreatedAtAction(nameof(GetQuestionById), new { id = question.ID }, question);
     }
 
+    [Authorize(Policy = "AdminOnlyPolicy")]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateQuestion(Guid id, UpdateQuestionDto questionDto)
     {
@@ -45,6 +54,7 @@ public class QuesitionController: ControllerBase
         return NoContent();
     }
 
+    [Authorize(Policy = "AdminOnlyPolicy")]
     [HttpDelete("{id}")] 
     public async Task<IActionResult> DeleteQuestion(Guid id)
     {

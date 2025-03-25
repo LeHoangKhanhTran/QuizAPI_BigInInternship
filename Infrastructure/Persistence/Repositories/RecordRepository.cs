@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using QuizAPI.Entities;
 using QuizAPI.Interfaces;

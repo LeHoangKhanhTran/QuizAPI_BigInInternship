@@ -1,7 +1,9 @@
 using System.Globalization;
 using AutoMapper;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using QuizAPI.DTOs;
 namespace QuizAPI.Controllers;
 
@@ -10,15 +12,22 @@ namespace QuizAPI.Controllers;
 public class TopicController: ControllerBase
 {
     private readonly ISender _sender;
-    public TopicController(ISender sender)
+    private readonly IMemoryCache _cache;
+    public TopicController(ISender sender, IMemoryCache cache)
     {
         _sender = sender;
+        _cache = cache;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<TopicInfoDto>>> GetAllTopics()
     {
-        var topicsInfo = await _sender.Send(new GetAllTopicsQuery());
+        var topicsInfo = await _cache.GetOrCreateAsync("topics", async entry => 
+        {
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
+            entry.SlidingExpiration = TimeSpan.FromMinutes(2);
+            return await _sender.Send(new GetAllTopicsQuery());
+        });
         return Ok(topicsInfo); 
     }
 
@@ -29,6 +38,7 @@ public class TopicController: ControllerBase
         return Ok(topic);
     }
 
+    [Authorize(Policy = "AdminOnlyPolicy")]
     [HttpPost]
     public async Task<ActionResult<TopicDto>> CreateTopic(CreateTopicDto topicDto) 
     {
@@ -36,6 +46,7 @@ public class TopicController: ControllerBase
         return CreatedAtAction(nameof(GetTopicById), new {id = topic.ID}, topic);
     }
 
+    [Authorize(Policy = "AdminOnlyPolicy")]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateTopic(Guid id, UpdateTopicDto topicDto)
     {
@@ -43,6 +54,7 @@ public class TopicController: ControllerBase
         return NoContent();
     }
 
+    [Authorize(Policy = "AdminOnlyPolicy")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteTopic(Guid id)
     {
@@ -50,6 +62,7 @@ public class TopicController: ControllerBase
         return NoContent();
     }
 
+    [Authorize(Policy = "AdminOnlyPolicy")]
     [HttpPost("{topicId}/questions/{questionId}")]
     public async Task<ActionResult> AddQuestionToTopic(Guid topicId, Guid questionId)
     {

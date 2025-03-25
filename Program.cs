@@ -5,6 +5,7 @@ using AutoMapper;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using QuizAPI.Entities;
@@ -26,6 +27,8 @@ builder.Services.AddIdentity<User, IdentityRole>()
                 .AddEntityFrameworkStores<UserDbContext>()
                 .AddDefaultTokenProviders();
 
+builder.Services.AddHttpContextAccessor(); 
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -40,12 +43,35 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtKey)),
         ValidateIssuer = false,
-        ValidateAudience = false
+        ValidateAudience = false,
+        ValidateLifetime = true, 
+        ClockSkew = TimeSpan.Zero
+    };
+    bearer.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            if (context.Request.Cookies.TryGetValue("access_token", out var token))
+            {
+                context.Token = token; 
+            }
+            return Task.CompletedTask;
+        }
     };
 });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    AdminAndUserResourcePolicy.AddPolicy(options);
+    options.AddPolicy("AdminOnlyPolicy", policy =>
+    {
+        policy.AddRequirements(new RolesRequirement(new List<string> {"Admin"}));
+        policy.RequireAuthenticatedUser();
+    });
+});
 
+builder.Services.AddSingleton<IAuthorizationHandler, RolesRequirementHandler>();
+builder.Services.AddSingleton<IAuthorizationHandler, UserResourceHandler>();
 builder.Services.AddScoped<JwtTokenGenerator>();
 builder.Services.AddScoped<ITopicRepository, TopicRepository>();
 builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
@@ -56,6 +82,7 @@ builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
+builder.Services.AddMemoryCache();
 
 var app = builder.Build();
 
@@ -70,7 +97,7 @@ if (app.Environment.IsDevelopment())
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseMiddleware<ExceptionHandlingMiddleware>(); 
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.MapControllers();
 
 app.Run();

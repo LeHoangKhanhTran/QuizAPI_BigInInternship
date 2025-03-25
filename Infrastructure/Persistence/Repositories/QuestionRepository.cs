@@ -35,7 +35,17 @@ public class QuestionRepository : IQuestionRepository
 
     public async Task UpdateQuestion(Question question)
     {
-        _quizDbContext.Questions.Update(question);
+        if (question.Choices is not null) 
+        {
+            var oldChoices = await _quizDbContext.Choices.Where(c => c.Question.ID == question.ID).ToListAsync();
+            if (oldChoices.Count > 0) 
+            {
+                _quizDbContext.RemoveRange(oldChoices); 
+                await _quizDbContext.SaveChangesAsync();
+            }
+            _quizDbContext.Choices.AddRange(question.Choices);          
+        }
+         _quizDbContext.Questions.Update(question);
         await _quizDbContext.SaveChangesAsync();
     }
 }

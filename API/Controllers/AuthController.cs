@@ -37,8 +37,30 @@ public class AuthController: ControllerBase
         if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
         {
             var token = await _tokenGenerator.GenerateToken(user);
+            var cookieOptions = new CookieOptions 
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None
+            };
+            HttpContext.Response.Cookies.Append("access_token", token,  cookieOptions);
             return Ok(new { token });
         }
         return Unauthorized();
+    }
+
+    [HttpPost]
+    [Route("logout")]
+    public async Task<ActionResult> LogOut() {
+        var cookieOptions = new CookieOptions 
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.None,
+            Path = "/",
+            Expires = DateTime.UtcNow.AddDays(-1)
+        };
+        Response.Cookies.Append("access_token", "", cookieOptions);
+        return Ok(new {message = "User logged out"});
     }
 }
