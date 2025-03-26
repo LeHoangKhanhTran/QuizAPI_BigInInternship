@@ -69,4 +69,12 @@ public class TopicController: ControllerBase
         await _sender.Send(new AddQuestionToTopicCommand(topicId, questionId));
         return NoContent();
     }
+
+    [Authorize(Policy = "AdminOnlyPolicy")]
+    [HttpDelete("{topicId}/questions/{questionId}")]
+    public async Task<ActionResult> RemoveQuestionFromTopic(Guid topicId, Guid questionId)
+    {
+        await _sender.Send(new RemoveQuestionFromTopicCommand(topicId, questionId));
+        return NoContent();
+    }
 }

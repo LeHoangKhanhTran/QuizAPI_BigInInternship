@@ -23,14 +23,14 @@ public class QuestionRepository : IQuestionRepository
 
     public async Task<Question> GetQuestionById(Guid id)
     {
-        var question = await _quizDbContext.Questions.Where(q => q.ID == id).SingleOrDefaultAsync();
+        var question = await _quizDbContext.Questions.Where(q => q.ID == id).Include(q => q.Topics).SingleOrDefaultAsync();
         return question;
     }
 
     public async Task<IEnumerable<Question>> GetQuestions(Guid? topicId)
     {
-        if (topicId is null) return await _quizDbContext.Questions.Where(q => q.Topics.Any(t => t.ID == topicId)).ToListAsync();
-        return await _quizDbContext.Questions.ToListAsync();
+        if (topicId is null) return await _quizDbContext.Questions.Where(q => q.Topics.Any(t => t.ID == topicId)).Include(q => q.Topics).ToListAsync();
+        return await _quizDbContext.Questions.Include(q => q.Topics).ToListAsync();
     }
 
     public async Task UpdateQuestion(Question question)
@@ -43,7 +43,8 @@ public class QuestionRepository : IQuestionRepository
                 _quizDbContext.RemoveRange(oldChoices); 
                 await _quizDbContext.SaveChangesAsync();
             }
-            _quizDbContext.Choices.AddRange(question.Choices);          
+            _quizDbContext.Choices.AddRange(question.Choices); 
+            
         }
          _quizDbContext.Questions.Update(question);
         await _quizDbContext.SaveChangesAsync();

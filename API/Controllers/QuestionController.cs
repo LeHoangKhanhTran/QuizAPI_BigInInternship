@@ -9,11 +9,11 @@ namespace QuizAPI.Controllers;
 
 [ApiController]
 [Route("api/questions")]
-public class QuesitionController: ControllerBase 
+public class QuestionController: ControllerBase 
 {
     private readonly ISender _sender;
     private readonly IMemoryCache _cache;
-    public QuesitionController(ISender sender, IMemoryCache cache)
+    public QuestionController(ISender sender, IMemoryCache cache)
     {
         _sender = sender;
         _cache = cache;
