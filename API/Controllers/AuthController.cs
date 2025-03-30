@@ -41,7 +41,7 @@ public class AuthController: ControllerBase
             {
                 HttpOnly = true,
                 Secure = true,
-                SameSite = SameSiteMode.None
+                SameSite = SameSiteMode.Lax
             };
             HttpContext.Response.Cookies.Append("access_token", token,  cookieOptions);
             return Ok(new { token });

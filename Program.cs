@@ -1,7 +1,5 @@
 using System.Reflection;
-using System.Security.Claims;
 using System.Text;
-using AutoMapper;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -63,14 +61,9 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorization(options =>
 {
     AdminAndUserResourcePolicy.AddPolicy(options);
-    options.AddPolicy("AdminOnlyPolicy", policy =>
-    {
-        policy.AddRequirements(new RolesRequirement(new List<string> {"Admin"}));
-        policy.RequireAuthenticatedUser();
-    });
 });
 
-builder.Services.AddSingleton<IAuthorizationHandler, RolesRequirementHandler>();
+// builder.Services.AddSingleton<IAuthorizationHandler, RolesRequirementHandler>();
 builder.Services.AddSingleton<IAuthorizationHandler, UserResourceHandler>();
 builder.Services.AddScoped<JwtTokenGenerator>();
 builder.Services.AddScoped<ITopicRepository, TopicRepository>();

@@ -25,7 +25,7 @@ public class RecordController: ControllerBase
         return Ok(record);
     }
     
-    [Authorize(Policy = "AdminAndUserResourcePolicy")]
+    [Authorize(Policy = "AdminAndUserResourcePolicy", Roles = "Admin,User")]
     [HttpGet]
     public async Task<ActionResult<IEnumerable<RecordDto>>> GetRecords([FromQuery] Guid userId)
     {
@@ -42,6 +42,7 @@ public class RecordController: ControllerBase
     public async Task<ActionResult<RecordDto>> CreateRecord(CreateRecordDto recordDto)
     {
         var record = await _sender.Send(new CreateRecordCommand(recordDto));
+        _cache.Remove("records");
         return CreatedAtAction(nameof(GetRecordById), new { id = record.ID }, record);
     }
 }

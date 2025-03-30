@@ -38,43 +38,48 @@ public class TopicController: ControllerBase
         return Ok(topic);
     }
 
-    [Authorize(Policy = "AdminOnlyPolicy")]
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<ActionResult<TopicDto>> CreateTopic(CreateTopicDto topicDto) 
     {
         var topic = await _sender.Send(new CreateTopicCommand(topicDto));
+        _cache.Remove("topics");
         return CreatedAtAction(nameof(GetTopicById), new {id = topic.ID}, topic);
     }
 
-    [Authorize(Policy = "AdminOnlyPolicy")]
+    [Authorize(Roles = "Admin")]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateTopic(Guid id, UpdateTopicDto topicDto)
     {
         await _sender.Send(new UpdateTopicCommand(id, topicDto));
+        _cache.Remove("topics");
         return NoContent();
     }
 
-    [Authorize(Policy = "AdminOnlyPolicy")]
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteTopic(Guid id)
     {
         await _sender.Send(new DeleteTopicCommand(id));
+        _cache.Remove("topics");
         return NoContent();
     }
 
-    [Authorize(Policy = "AdminOnlyPolicy")]
+    [Authorize(Roles = "Admin")]
     [HttpPost("{topicId}/questions/{questionId}")]
     public async Task<ActionResult> AddQuestionToTopic(Guid topicId, Guid questionId)
     {
         await _sender.Send(new AddQuestionToTopicCommand(topicId, questionId));
+        _cache.Remove("topics");
         return NoContent();
     }
 
-    [Authorize(Policy = "AdminOnlyPolicy")]
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{topicId}/questions/{questionId}")]
     public async Task<ActionResult> RemoveQuestionFromTopic(Guid topicId, Guid questionId)
     {
         await _sender.Send(new RemoveQuestionFromTopicCommand(topicId, questionId));
+        _cache.Remove("topics");
         return NoContent();
     }
 }

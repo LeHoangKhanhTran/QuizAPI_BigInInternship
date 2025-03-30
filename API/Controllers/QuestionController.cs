@@ -38,27 +38,30 @@ public class QuestionController: ControllerBase
         return Ok(question);
     }
 
-    [Authorize(Policy = "AdminOnlyPolicy")]
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<ActionResult<QuestionDto>> CreateQuestion(CreateQuestionDto questionDto)
     {
         var question = await _sender.Send(new CreateQuestionCommand(questionDto));
+        _cache.Remove("questions");
         return CreatedAtAction(nameof(GetQuestionById), new { id = question.ID }, question);
     }
 
-    [Authorize(Policy = "AdminOnlyPolicy")]
+    [Authorize(Roles = "Admin")]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateQuestion(Guid id, UpdateQuestionDto questionDto)
     {
         await _sender.Send(new UpdateQuestionCommand(id, questionDto));
+        _cache.Remove("questions");
         return NoContent();
     }
 
-    [Authorize(Policy = "AdminOnlyPolicy")]
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id}")] 
     public async Task<IActionResult> DeleteQuestion(Guid id)
     {
         await _sender.Send(new DeleteQuestionCommand(id));
+        _cache.Remove("questions");
         return NoContent();
     }
 }

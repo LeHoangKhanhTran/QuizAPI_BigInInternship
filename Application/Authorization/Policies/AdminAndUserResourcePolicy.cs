@@ -8,7 +8,7 @@ public static class AdminAndUserResourcePolicy
     {
         options.AddPolicy(Name, policy =>
         {
-            policy.Requirements.Add(new RolesRequirement(new List<string> {"Admin", "User"}));
+            // policy.Requirements.Add(new RolesRequirement(new List<string> {"Admin", "User"}));
             policy.Requirements.Add(new UserResourceRequirement());
             policy.RequireAuthenticatedUser();
         });
