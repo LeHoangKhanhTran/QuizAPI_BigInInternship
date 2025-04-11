@@ -17,6 +17,18 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontendOrigin",
+        builder =>
+        {
+            builder.WithOrigins("http://localhost:5173")
+                   .AllowCredentials()
+                   .AllowAnyMethod()
+                   .AllowAnyHeader();
+        });
+});
+
 builder.Services.AddDbContext<QuizDbContext>();
 builder.Services.AddDbContext<UserDbContext>();
 builder.Services.AddAutoMapper(typeof(Program));
@@ -88,6 +100,7 @@ if (app.Environment.IsDevelopment())
 
 
 app.UseRouting();
+app.UseCors("AllowFrontendOrigin");
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<ExceptionHandlingMiddleware>();

@@ -22,12 +22,13 @@ public class QuestionController: ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<QuestionDto>>> GetQuestions([FromQuery] Guid topicId)
     {
-        var questions = await _cache.GetOrCreateAsync("questions", async entry =>
-        {
-            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
-            entry.SlidingExpiration = TimeSpan.FromMinutes(2);
-            return await _sender.Send(new GetQuestionsQuery(topicId));
-        });
+        // var questions = await _cache.GetOrCreateAsync("questions", async entry =>
+        // {
+        //     entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
+        //     entry.SlidingExpiration = TimeSpan.FromMinutes(2);
+        //     return await _sender.Send(new GetQuestionsQuery(topicId));
+        // });
+        var questions = await _sender.Send(new GetQuestionsQuery(topicId));
         return Ok(questions);
     }
 

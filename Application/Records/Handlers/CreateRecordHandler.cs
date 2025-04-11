@@ -13,8 +13,8 @@ public class CreateRecordHandler : IRequestHandler<CreateRecordCommand, RecordDt
     public async Task<RecordDto> Handle(CreateRecordCommand request, CancellationToken cancellationToken)
     {
         var recordDto = request.RecordDto;
-        var existingTopic = await _unitOfWork.Topics.GetTopicById(recordDto.TopicID);
-        if (existingTopic is null) throw new NotFoundException(nameof(Topic), recordDto.TopicID);
+        var existingTopic = await _unitOfWork.Topics.GetTopicById(recordDto.TopicId);
+        if (existingTopic is null) throw new NotFoundException(nameof(Topic), recordDto.TopicId);
         int score = 0;
         foreach (CreateAnswerDto answer in recordDto.Answers)
         {
@@ -35,7 +35,7 @@ public class CreateRecordHandler : IRequestHandler<CreateRecordCommand, RecordDt
                 ChoiceId = a.ChoiceId,
             }).ToList(), 
             Score = score,
-            UserID = recordDto.UserID
+            UserID = recordDto.UserId   
         };
         await _unitOfWork.Records.CreateRecord(record);
         TopicInfoDto topicInfoDto = new(existingTopic.ID, existingTopic.Title, existingTopic.Description);

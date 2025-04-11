@@ -29,7 +29,7 @@ public class QuestionRepository : IQuestionRepository
 
     public async Task<IEnumerable<Question>> GetQuestions(Guid? topicId)
     {
-        if (topicId is null) return await _quizDbContext.Questions.Where(q => q.Topics.Any(t => t.ID == topicId)).Include(q => q.Topics).ToListAsync();
+        if (topicId is not null && topicId != Guid.Empty) return await _quizDbContext.Questions.Where(q => q.Topics.Any(t => t.ID == topicId)).Include(q => q.Topics).ToListAsync();
         return await _quizDbContext.Questions.Include(q => q.Topics).ToListAsync();
     }
 

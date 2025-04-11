@@ -44,7 +44,7 @@ public class AuthController: ControllerBase
                 SameSite = SameSiteMode.Lax
             };
             HttpContext.Response.Cookies.Append("access_token", token,  cookieOptions);
-            return Ok(new { token });
+            return Ok(new UserInfoDto(Guid.Parse(user.Id), user.Email, (await _userManager.GetRolesAsync(user)).ToList()));
         }
         return Unauthorized();
     }

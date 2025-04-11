@@ -16,13 +16,26 @@ public class UserController: ControllerBase
         _sender = sender;
     }
 
+    [HttpGet("me")]
+    public async Task<ActionResult<UserDto>> GetCurrentUser()
+    {
+        var userId = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
+        if (userId is null) return NotFound();
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user is null) return NotFound();
+        var records = await _sender.Send(new GetRecordsQuery(Guid.Parse(userId)));
+        var recordDtos = records.Select(r => new RecordInfoDto(r.ID, r.Topic, r.UserId, r.Score, r.CreatedDate)).ToList();
+        UserInfoDto userDto = new(Guid.Parse(userId), user.Email, (await _userManager.GetRolesAsync(user)).ToList());
+        return Ok(userDto);
+    }
+
     [HttpGet("{id}")]
     public async Task<ActionResult<UserDto>> GetUserById(Guid id)
     {
         var user = await _userManager.FindByIdAsync(id.ToString());
         if (user is null) return NotFound();
         var records = await _sender.Send(new GetRecordsQuery(id));
-        var recordDtos = records.Select(r => new RecordInfoDto(r.ID, r.Topic, r.UserID, r.Score, r.CreatedDate)).ToList();
+        var recordDtos = records.Select(r => new RecordInfoDto(r.ID, r.Topic, r.UserId, r.Score, r.CreatedDate)).ToList();
         UserDto userDto = new(user.Email, recordDtos);
         return Ok(userDto);
     }
