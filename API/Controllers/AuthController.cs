@@ -46,7 +46,7 @@ public class AuthController: ControllerBase
             HttpContext.Response.Cookies.Append("access_token", token,  cookieOptions);
             return Ok(new UserInfoDto(Guid.Parse(user.Id), user.Email, (await _userManager.GetRolesAsync(user)).ToList()));
         }
-        return Unauthorized();
+        return Unauthorized("User not found or password is incorrect.");
     }
 
     [HttpPost]

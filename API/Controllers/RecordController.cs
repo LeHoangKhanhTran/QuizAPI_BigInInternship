@@ -22,6 +22,8 @@ public class RecordController: ControllerBase
     public async Task<ActionResult<RecordDto>> GetRecordById(Guid id)
     {
         var record = await _sender.Send(new GetRecordByIdQuery(id));
+        var userId = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
+        if (record.UserId != Guid.Parse(userId)) return Unauthorized("You do not have access to this record.");
         return Ok(record);
     }
     
