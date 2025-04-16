@@ -36,14 +36,16 @@ public class AuthController: ControllerBase
         var user = await _userManager.FindByEmailAsync(model.Email);
         if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
         {
-            var token = await _tokenGenerator.GenerateToken(user);
+            var accessToken = await _tokenGenerator.GenerateAccessToken(user);
+            var refreshToken = await _tokenGenerator.GenerateRefreshToken(user);
             var cookieOptions = new CookieOptions 
             {
                 HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.Lax
             };
-            HttpContext.Response.Cookies.Append("access_token", token,  cookieOptions);
+            HttpContext.Response.Cookies.Append("access_token", accessToken,  cookieOptions);
+            HttpContext.Response.Cookies.Append("refresh_token", refreshToken,  cookieOptions);
             return Ok(new UserInfoDto(Guid.Parse(user.Id), user.Email, (await _userManager.GetRolesAsync(user)).ToList()));
         }
         return Unauthorized("User not found or password is incorrect.");
@@ -61,6 +63,31 @@ public class AuthController: ControllerBase
             Expires = DateTime.UtcNow.AddDays(-1)
         };
         Response.Cookies.Append("access_token", "", cookieOptions);
+        Response.Cookies.Append("refresh_token", "", cookieOptions);
         return Ok(new {message = "User logged out"});
+    }
+
+    [HttpPost]
+    [Route("refresh-token")]
+    public async Task<ActionResult> GetRefreshToken() 
+    {
+        var refreshToken = Request.Cookies["refresh_token"];
+        if (string.IsNullOrEmpty(refreshToken)) return Unauthorized("No refresh token provided.");
+        var principal = _tokenGenerator.GetPrincipalFromToken(refreshToken);
+        if (principal is null) return Unauthorized("Invalid refresh token.");
+        var userId = principal.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user is null) return Unauthorized("User not found.");
+        var accessToken = await _tokenGenerator.GenerateAccessToken(user);
+        var newRefreshToken = await _tokenGenerator.GenerateRefreshToken(user);
+        var cookieOptions = new CookieOptions 
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Lax
+        };
+        HttpContext.Response.Cookies.Append("access_token", accessToken,  cookieOptions);
+        HttpContext.Response.Cookies.Append("refresh_token", refreshToken,  cookieOptions);
+        return Ok();
     }
 }
